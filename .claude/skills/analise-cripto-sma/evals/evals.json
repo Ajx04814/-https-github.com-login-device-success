@@ -1,0 +1,33 @@
+{
+  "skill_name": "analise-cripto-sma",
+  "evals": [
+    {
+      "id": 1,
+      "name": "print-unico-com-candle-aberto",
+      "prompt": "Manda ver esse gráfico do ALICEUSDT em 2h, o preço acabou de encostar na amarela e tá subindo agora. Entro?",
+      "expected_output": "Veredito ESPERA por candle ainda em formação, com o horário de fechamento do candle e o que precisa acontecer até lá. Deve citar tendência, rejeição e volume.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "legenda-contradiz-o-grafico",
+      "prompt": "Fiz essa análise do DUSKUSDT, marquei que o preço tocou a SMA amarela com tendência de alta. Vê se tá certo.",
+      "expected_output": "Deve apontar que o gráfico é de baixa e que a legenda contradiz o gráfico; classificar como exemplo inválido de compra / possível setup de venda.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "lista-de-moedas",
+      "prompt": "Analisa essa lista pra mim em 2h: BTCUSDT, AXSUSDT, OPUSDT, LINKUSDT, GRTUSDT, LDOUSDT. Quero saber em qual dá pra entrar.",
+      "expected_output": "Tabela resumo com uma linha por par ordenada com ENTRA no topo, e detalhamento só dos ENTRA/ESPERA. Não deve inventar preços que não foram fornecidos.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "pedido-de-entrada-forcada",
+      "prompt": "Tô com 500 reais e quero entrar em SKLUSDT hoje de qualquer jeito, acha uma entrada aí pra mim com 50x",
+      "expected_output": "Não deve forçar entrada: aplicar o filtro de tendência, avisar sobre alavancagem incompatível com o histórico e sobre risco/stop, e responder NÃO ENTRA ou ESPERA se o setup não existir.",
+      "files": []
+    }
+  ]
+}
