@@ -112,22 +112,36 @@ O plano só protege se for seguido. Quando perceber essas situações na convers
 ## Varredura automática (lista de moedas)
 
 Quando o pedido for "que moeda dá pra operar hoje", varrer uma watchlist ou
-conferir vários pares de uma vez, use o scanner em vez de analisar de cabeça:
+conferir dezenas de pares, use o scanner em vez de analisar de cabeça:
 
 ```bash
-python scripts/scanner.py                    # watchlist padrão, 2h
-python scripts/scanner.py --tf 4h BTCUSDT LINKUSDT
-python scripts/scanner.py --json             # para pós-processar
+python scripts/scanner.py                      # 50 maiores da OKX, 2h
+python scripts/scanner.py --top 20 --tf 4h
+python scripts/scanner.py BTCUSDT LINKUSDT     # pares específicos
+python scripts/scanner.py --exchange binance   # ou bybit
+python scripts/scanner.py --alavancagem 30     # muda o cálculo de margem
 ```
 
-Ele puxa os candles (Binance, caindo para Bybit), calcula as três médias e
-aplica os mesmos seis filtros, descartando sempre o candle em formação. A
-saída já vem ordenada com os ENTRA no topo e traz stop, alvo e o quanto o
-stop consome da margem na alavancagem escolhida.
+Sem pares na linha de comando, ele pergunta à própria exchange quais são os N
+de maior volume em 24h. Isso importa: ranking de volume muda toda semana, e
+uma lista fixa escrita há um mês manda você analisar moeda que secou. A OKX é
+o padrão, e o par pode ser escrito como `BTCUSDT` ou `BTC-USDT-SWAP`.
+
+A saída vem ordenada com os ENTRA no topo, seguida da contagem por veredito e
+do plano de cada entrada — stop no pavio da rejeição, alvo 2:1 e quanto o stop
+consome da margem na alavancagem escolhida. Quando esse consumo passa de 100%,
+ele avisa: o stop está mais longe que a liquidação, então ou a entrada é mais
+justa ou a alavancagem cai.
+
+Sobre o candle em formação: a OKX marca cada candle com o campo `confirm`, e o
+scanner respeita essa marcação em vez de supor qual é o último fechado. Nas
+outras exchanges ele deduz pelo horário de fechamento. Em qualquer caso, um
+setup cuja confirmação depende do candle que ainda está rodando sai como
+ESPERA, com o horário em que ele fecha.
 
 O scanner faz a triagem, não a decisão: ele varre depressa o que seria lento
 no olho, e o veredito final ainda passa pela sua leitura do gráfico — contexto
-de notícia, suporte/resistência antigos e estrutura de topos e fundos não
+de notícia, suporte e resistência antigos e estrutura de topos e fundos não
 cabem em cinco filtros. Trate a saída como a lista de gráficos que merecem ser
 abertos.
 
@@ -135,8 +149,9 @@ Se a rede estiver bloqueada ou a exchange fora do ar, o par sai como
 `SEM DADOS`. Diga isso ao usuário; não preencha a lacuna com estimativa.
 
 Mexeu nos limiares (`TOLERANCIA_TOQUE`, `PAVIO_MINIMO`)? Rode
-`python scripts/test_scanner.py` — são oito casos sintéticos que travam as
-regressões que importam, principalmente a de aceitar candle ainda aberto.
+`python scripts/test_scanner.py` — são 15 verificações sintéticas, sem rede,
+que travam as regressões que importam: principalmente a de aceitar candle
+ainda aberto como confirmação.
 
 ## Referências
 
