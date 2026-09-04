@@ -109,6 +109,35 @@ O plano só protege se for seguido. Quando perceber essas situações na convers
 - Voltar depois de um stop querendo dobrar a alavancagem → revenge trade.
 - Perguntar se pode "só mover o stop um pouquinho" → o stop movido para trás transforma perda planejada em liquidação.
 
+## Varredura automática (lista de moedas)
+
+Quando o pedido for "que moeda dá pra operar hoje", varrer uma watchlist ou
+conferir vários pares de uma vez, use o scanner em vez de analisar de cabeça:
+
+```bash
+python scripts/scanner.py                    # watchlist padrão, 2h
+python scripts/scanner.py --tf 4h BTCUSDT LINKUSDT
+python scripts/scanner.py --json             # para pós-processar
+```
+
+Ele puxa os candles (Binance, caindo para Bybit), calcula as três médias e
+aplica os mesmos seis filtros, descartando sempre o candle em formação. A
+saída já vem ordenada com os ENTRA no topo e traz stop, alvo e o quanto o
+stop consome da margem na alavancagem escolhida.
+
+O scanner faz a triagem, não a decisão: ele varre depressa o que seria lento
+no olho, e o veredito final ainda passa pela sua leitura do gráfico — contexto
+de notícia, suporte/resistência antigos e estrutura de topos e fundos não
+cabem em cinco filtros. Trate a saída como a lista de gráficos que merecem ser
+abertos.
+
+Se a rede estiver bloqueada ou a exchange fora do ar, o par sai como
+`SEM DADOS`. Diga isso ao usuário; não preencha a lacuna com estimativa.
+
+Mexeu nos limiares (`TOLERANCIA_TOQUE`, `PAVIO_MINIMO`)? Rode
+`python scripts/test_scanner.py` — são oito casos sintéticos que travam as
+regressões que importam, principalmente a de aceitar candle ainda aberto.
+
 ## Referências
 
 - `references/leitura-do-grafico.md` — como extrair par, timeframe, médias e volume de um print do TradingView, e o que fazer quando a imagem está cortada ou ilegível.
