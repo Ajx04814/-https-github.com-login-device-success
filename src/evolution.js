@@ -1,5 +1,8 @@
 import { BASE, TOKEN, INSTANCIA } from "./config.js";
 
+// IMPORTANTE: este módulo NÃO expõe /instance/logout nem /instance/delete de propósito.
+// Essas rotas derrubam a sessão e obrigam a ler o QR de novo. Faça isso só pelo painel, se precisar.
+
 async function chamar(metodo, caminho, corpo) {
   const res = await fetch(BASE + caminho, {
     method: metodo,
@@ -23,11 +26,20 @@ export const criarInstancia = () =>
     instanceName: INSTANCIA,
     qrcode: true,
     integration: "WHATSAPP-BAILEYS",
+    // Não fica "online" o tempo todo nem lê mensagens de grupo: comportamento mais humano.
+    alwaysOnline: false,
+    groupsIgnore: true,
+    rejectCall: false,
   });
 
 export const conectarInstancia = () => chamar("GET", `/instance/connect/${INSTANCIA}`);
 
 export const estadoConexao = () => chamar("GET", `/instance/connectionState/${INSTANCIA}`);
+
+export async function dadosInstancia() {
+  const lista = await chamar("GET", `/instance/fetchInstances?instanceName=${INSTANCIA}`);
+  return Array.isArray(lista) ? lista[0] : lista;
+}
 
 export const configurarWebhook = (url) =>
   chamar("POST", `/webhook/set/${INSTANCIA}`, {
@@ -40,5 +52,12 @@ export const configurarWebhook = (url) =>
     },
   });
 
-export const enviarTexto = (number, text) =>
-  chamar("POST", `/message/sendText/${INSTANCIA}`, { number, text });
+// Confere se o número tem WhatsApp. Mandar para número sem WhatsApp aumenta o risco de ban.
+export async function temWhatsApp(numero) {
+  const r = await chamar("POST", `/chat/whatsappNumbers/${INSTANCIA}`, { numbers: [numero] });
+  return Boolean(Array.isArray(r) && r[0]?.exists);
+}
+
+// delay = quantos ms a Naia fica "digitando..." antes de a mensagem sair.
+export const enviarTexto = (number, text, delay = 0) =>
+  chamar("POST", `/message/sendText/${INSTANCIA}`, { number, text, delay });

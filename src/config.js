@@ -8,12 +8,31 @@ if (existsSync(".env")) {
   }
 }
 
+const num = (nome, padrao) => Number(process.env[nome] ?? padrao);
+
 export const BASE = (process.env.EVO_URL || "").replace(/\/$/, "");
 export const TOKEN = process.env.EVO_TOKEN;
 export const INSTANCIA = process.env.EVO_INSTANCIA || "naia";
 export const WEBHOOK_URL = process.env.WEBHOOK_URL;
-export const PORT = Number(process.env.PORT || 3000);
-export const NUMERO_TESTE = process.env.NUMERO_TESTE || "5521965250104";
+export const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
+export const PORT = num("PORT", 3000);
+
+// O número do chip conectado na Naia. É o número que estamos protegendo.
+export const NUMERO_NAIA = process.env.NUMERO_NAIA || "5521965250104";
+export const NUMERO_TESTE = process.env.NUMERO_TESTE || NUMERO_NAIA;
+
+// Limites anti-banimento. Os padrões são conservadores de propósito.
+export const LIMITES = {
+  porMinuto: num("LIMITE_POR_MINUTO", 6),
+  porHora: num("LIMITE_POR_HORA", 60),
+  porDia: num("LIMITE_POR_DIA", 200),
+  // Mensagens para contatos que nunca falaram com a Naia (o maior risco de ban).
+  novosPorDia: num("LIMITE_NOVOS_POR_DIA", 10),
+  intervaloMinMs: num("INTERVALO_MIN_MS", 3000),
+  intervaloMaxMs: num("INTERVALO_MAX_MS", 8000),
+};
+
+export const ARQUIVO_ESTADO = process.env.ARQUIVO_ESTADO || "data/estado.json";
 
 export function exigir(...nomes) {
   const faltando = nomes.filter((n) => !process.env[n]);
