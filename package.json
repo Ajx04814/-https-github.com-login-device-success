@@ -1,0 +1,13 @@
+{
+  "name": "naia",
+  "version": "1.0.0",
+  "description": "Naia: WhatsApp via Evolution API, sem SDK e sem pacote de terceiro.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "conectar": "node src/conectar.js",
+    "enviar": "node src/enviar.js",
+    "webhook": "node src/webhook.js"
+  }
+}
